@@ -18,8 +18,8 @@
 - 原始导出文本包含部分 ChatGPT 的界面标签（如 `<box>`、`<Chart>`、`{#each}`），它们是聊天导出残留，不是本项目要编写的前端组件代码。
 - 教师课件曾作为聊天附件被讨论，但附件本身没有随当前 Markdown 导出提供。如需严格核对老师要求，请让用户单独提供课件。
 
-## 接下来该做什么
+## 当前状态与接续
 
-数据库初版已在 `database/migrations/` 落地，并在 `docs/database-design.md` 记录实体关系、约束和事务边界。下一阶段根据这套数据库契约实现 Spring Boot 业务服务、模拟设备数据流、规则执行和 Vue 工作台；先核对技术版本和教师评分要求。重要新决策继续更新 `docs/DECISIONS.md` 并提交到 GitHub。
+数据库、Spring Boot API、模拟设备数据流、确定性规则服务与 Vue 工作台均已落地。启动和验证见根目录 `README.md`，接口与事务说明见 `docs/application-design.md`，课程报告草稿见 `docs/course-report.md`。后续请优先对照教师原课件与评分细则、开展更大样本性能测试和真实硬件协议设计，不要把 AI 占位接口误认为已经接入模型。重要新决策继续更新 `docs/DECISIONS.md` 并提交到 GitHub。
 
 这份聊天导出是**静态快照**。ChatGPT 后续的新对话不会自动进入仓库，需要再导出并提交。

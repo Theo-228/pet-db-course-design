@@ -1,22 +1,68 @@
-# PetOS 数据库课程设计
+# PetOS · 宠物健康与智能设备工作台
 
-统一的宠物智能管理平台，面向家庭与猫咖等不同规模的空间。当前仓库先交付可运行、可验证的 PostgreSQL 数据库基础；前后端会基于这套数据契约继续开发。
+面向数据库课程设计的前后端分离应用。家庭与猫咖使用同一套工作空间模型：宠物、区域、设备、测量、自动化规则与提醒。项目重点是可验证的关系设计、完整性约束、历史数据、SQL 统计和业务事务，而不是商业运营或虚构的 AI 能力。
 
-## 当前范围
+## 已实现
 
-- 宠物管理：宠物档案、健康记录、体重与活动等测量历史。
-- 智能设备管理：设备、空间、设备与宠物的带时间范围的关联、采集数据、控制指令。
-- 智能自动化中心：确定性阈值规则、执行日志和告警。
-- AI 健康分析及全局 AI 助手：只保留后续 API 的设计位置，不存储伪造的分析结果。
+| 领域 | 可运行功能 |
+|---|---|
+| 账号与工作空间 | 注册/登录、Session + CSRF、工作空间隔离、OWNER/EDITOR/VIEWER 权限基础 |
+| 宠物 | 档案、归档、健康记录、最新体重与近 30 天活动/饮食统计 |
+| 设备 | 设备/区域、状态、专属及共享绑定、模拟控制指令 |
+| 测量 | 人工/设备上报、事件去重、设备能力校验、不可变原始记录、追加式归属修订 |
+| 自动化 | 阈值规则、冷却、告警与模拟设备联动、执行日志、持久化待处理队列与重试 |
+| AI | 健康分析、行为识别、助手、数据库问答、自动化决策的接口占位；均明确返回 501 |
 
-数据库以 PostgreSQL 17 验证。项目不包含会员、订单、收费或门店经营功能。
+不包含真实硬件驱动、大模型、知识库、会员、订单、收费或门店经营模块。设备指令在数据库中模拟为 `APPLIED`，**不代表真实硬件已经动作**。
 
-数据库的设计说明、安装与测试命令见 [database/README.md](database/README.md)。
+## 技术与目录
 
-后续应用技术路线暂定 Java 21、Spring Boot、MyBatis、Vue 3、Vite 与 Element Plus；初始化应用时再核对版本兼容性。数据库工作完成并不代表前后端已经交付。
+- PostgreSQL 17；Flyway 顺序迁移位于 `database/migrations/`。
+- Java 21、Spring Boot 3.5.16、MyBatis Starter 3.0.5；`backend/`。
+- Vue 3、Vite 7、Element Plus、Axios；`frontend/`。
+- E-R 图、约束说明和课程设计材料位于 `docs/`；原始聊天记录也在其中。
 
-## 项目来源与范围
+## 本地启动
 
-此前讨论与已确认决策保留在 [原始聊天](docs/chat-history/2026-10-14-pet-platform-discussion.md)、[项目上下文](docs/PROJECT_CONTEXT.md) 和 [决策记录](docs/DECISIONS.md)。其中早期商业产品设想属于长期规划，当前实现以较新的数据库课程设计要求为准。教师课件原件尚未存入仓库。
+需要 JDK 21、PostgreSQL 17、Node.js 24（或符合 Vite 7 要求的版本）和 npm。初次运行先创建一个**空数据库**及可使用 `btree_gist` 扩展的账号；Flyway 会自动建表，不要先手动执行迁移文件。
 
-聊天导出是静态快照，后续对话不会自动写入仓库。
+PowerShell 示例（替换连接信息）：
+
+```powershell
+$env:PETOS_DB_URL = 'jdbc:postgresql://127.0.0.1:5432/petos'
+$env:PETOS_DB_USER = 'petos'
+$env:PETOS_DB_PASSWORD = 'your-password'
+./backend/mvnw.cmd -f backend/pom.xml spring-boot:run
+```
+
+另开终端启动前端：
+
+```powershell
+cd frontend
+npm ci
+npm run dev
+```
+
+打开 `http://127.0.0.1:5173/`，注册账号后即可创建工作空间。后端默认监听 8080；如果端口占用，设定 `PETOS_PORT`，并在前端启动前设定 `PETOS_API_TARGET`（例如 `http://127.0.0.1:18080`）。
+
+## 验证与演示
+
+```powershell
+./backend/mvnw.cmd -f backend/pom.xml test package
+cd frontend
+npm run build
+```
+
+在运行中的后端上执行 `backend/scripts/smoke.ps1`，会在当前数据库创建带随机后缀的测试工作空间，验证宠物/设备/绑定、测量归属、阈值提醒、模拟命令、共享设备的未知身份与修订、事件去重、SQL 健康统计以及跨工作空间拒绝。测试数据会留在该数据库；建议使用独立的开发库。数据库级约束测试见 `database/README.md`，其 SQL 使用事务并在末尾回滚。
+
+推荐演示流程：注册 → 添加宠物和区域 → 注册专属体重秤并模拟上线 → 绑定宠物 → 创建体重阈值提醒 → 模拟设备上报 → 查看自动归属、执行日志与告警 → 改用共享设备上报并确认其默认未知归属 → 手动追加归属修订 → 查看宠物健康统计。AI 页面只展示未接入状态。
+
+## 文档
+
+- [项目边界与历史决定](docs/PROJECT_CONTEXT.md)
+- [应用设计与 API](docs/application-design.md)
+- [数据库设计与 E-R 图](docs/database-design.md)
+- [数据库运行和测试](database/README.md)
+- [课程设计报告草稿](docs/course-report.md)
+
+教师 PPT 原件和最终评分细则尚未进入仓库，因此课程报告是可核验的项目文档草稿，而不是对未知评分条款的承诺。

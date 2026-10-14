@@ -1,6 +1,6 @@
 # 数据库使用说明
 
-需要 PostgreSQL 17、`psql` 和允许创建 `btree_gist` 扩展的账号。建议为开发创建一个空数据库，例如 `petos_dev`。生产部署应由迁移工具按版本执行 `migrations/` 中的脚本；不要对已有数据库重新运行旧迁移。
+需要 PostgreSQL 17、`psql` 和允许创建 `btree_gist` 扩展的账号。**运行应用时使用一个空数据库，让后端 Flyway 自动执行全部迁移。**下面的手动命令只用于独立的数据库实验库；手动迁移过的数据库不能直接交给未建立历史记录的 Flyway 使用。
 
 在项目根目录运行：
 
@@ -11,6 +11,7 @@ psql -X -v ON_ERROR_STOP=1 -1 -d petos_dev -f database/migrations/V3__reporting_
 psql -X -v ON_ERROR_STOP=1 -1 -d petos_dev -f database/migrations/V4__integrity_guards.sql
 psql -X -v ON_ERROR_STOP=1 -1 -d petos_dev -f database/migrations/V5__measurement_semantics.sql
 psql -X -v ON_ERROR_STOP=1 -1 -d petos_dev -f database/migrations/V6__access_foundation.sql
+psql -X -v ON_ERROR_STOP=1 -1 -d petos_dev -f database/migrations/V7__automation_dispatch.sql
 psql -X -v ON_ERROR_STOP=1 -d petos_dev -f database/tests/schema_test.sql
 ```
 
@@ -29,7 +30,7 @@ psql -X -d petos_dev -f database/queries/demo_queries.sql
 - `device_pet_binding` 记录关联有效期。共享设备允许同时关联多只宠物；专属设备的有效期不能交叠。
 - `measurement` 是不可变的原始事实。共享设备无法识别使用者时，测量仍然保存，但没有宠物归属。
 - `measurement_attribution` 保存可追加的归属判断与修正。最新一条为当前判断，旧判断可追溯；仅有设备关联不等于完成身份识别。
-- 自动化规则仅支持确定性单指标阈值。业务服务应在同一事务内创建 `automation_execution` 与对应的 `alert_event` 或 `device_command`，并通过唯一约束保证同一规则对同一测量只执行一次。
+- 自动化规则仅支持确定性单指标阈值。测量写入触发器在同一事务内产生 `automation_dispatch` 待处理行；后端在提交后处理并定时重试。单次执行事务同时写入 `automation_execution` 与对应的 `alert_event` 或 `device_command`，唯一约束避免重复动作。冷却判定以测量记录时间为准。
 - AI 不在数据库内生成预测、诊断或问答内容。
 
-完整实体关系、关键约束、尚待后端实现的事务边界见 [docs/database-design.md](../docs/database-design.md)。
+完整实体关系和关键约束见 [docs/database-design.md](../docs/database-design.md)。演示数据使用真实表，不包含账号；如果与应用一起使用，演示库中的测量行会进入待处理队列。

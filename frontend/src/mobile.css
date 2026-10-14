@@ -1,0 +1,11 @@
+@media (max-width: 750px) {
+  .logo > span:last-child,
+  .workspace-pill,
+  .nav-caption,
+  .sidebar-bottom {
+    display: none;
+  }
+  .sidebar nav {
+    margin-top: 34px;
+  }
+}
