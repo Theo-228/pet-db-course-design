@@ -1,6 +1,6 @@
 # 项目上下文｜供 Codex 接手
 
-更新：2026-10-14。**优先阅读原始讨论：[`docs/chat-history/2026-10-14-pet-platform-discussion.md`](chat-history/2026-10-14-pet-platform-discussion.md)**。本文件是按聊天后半段的最新决定整理的摘要；聊天前半段有大量已被后续调整的商业化设想，不能误当现阶段开发需求。
+更新：2026-10-14。**优先阅读原始讨论：[`docs/chat-history/2026-10-14-pet-platform-discussion.md`](chat-history/2026-10-14-pet-platform-discussion.md)**。本文件是按聊天后半段的最新决定整理的摘要；聊天前半段有大量已被后续调整的商业化设想，不能误当现阶段开发需求。数据库初版及其运行方法见 [`database/README.md`](../database/README.md)。
 
 ## 当前定位
 
@@ -37,7 +37,7 @@
 ## 尚待确定
 
 - 课程的完整评分细则和老师提供的 PPT 原文件（导出的 Markdown 仅保留对其讨论，文中有附件相对链接，但本仓库目前未存放该附件）。
-- 数据库实体清单、功能流程、表结构、API、页面数量、示例数据及演示方案。
+- 数据库实体与表结构已有可运行初版，详见 [`database-design.md`](database-design.md)；功能流程、API、页面数量及最终演示方案仍待确定。
 - 真实硬件接入范围以及本地开发环境。
 
 若此摘要与原始讨论中的**用户明确且较新的决定**冲突，以用户决定为准，先提示差异，不要自动扩大项目范围。
