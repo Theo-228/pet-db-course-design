@@ -64,5 +64,6 @@ npm run build
 - [数据库设计与 E-R 图](docs/database-design.md)
 - [数据库运行和测试](database/README.md)
 - [课程设计报告草稿](docs/course-report.md)
+- [汇报 PPT 与数据库零基础讲解](docs/presentation/README.md)
 
 教师 PPT 原件和最终评分细则尚未进入仓库，因此课程报告是可核验的项目文档草稿，而不是对未知评分条款的承诺。
