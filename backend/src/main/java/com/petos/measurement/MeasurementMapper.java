@@ -9,6 +9,28 @@ import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface MeasurementMapper {
+    record HistoryDay(String day, String metricCode, long count, BigDecimal average,
+                      BigDecimal minimum, BigDecimal maximum, BigDecimal total,
+                      long manualCount, long deviceCount) {}
+
+    @Select("""
+        SELECT (v.measured_at AT TIME ZONE 'Asia/Shanghai')::date::text AS day,
+               v.metric_code, count(*) AS count, avg(v.value) AS average,
+               min(v.value) AS minimum, max(v.value) AS maximum, sum(v.value) AS total,
+               count(*) FILTER (WHERE v.source_kind = 'MANUAL') AS manual_count,
+               count(*) FILTER (WHERE v.source_kind = 'DEVICE') AS device_count
+        FROM petos.v_measurement_current v
+        WHERE v.workspace_id = #{workspaceId}
+          AND (#{petId}::bigint IS NULL OR v.pet_id = #{petId})
+          AND (#{deviceId}::bigint IS NULL OR v.device_id = #{deviceId})
+          AND v.measured_at >= (CAST(#{start} AS date)::timestamp AT TIME ZONE 'Asia/Shanghai')
+          AND v.measured_at < ((CAST(#{end} AS date) + 1)::timestamp AT TIME ZONE 'Asia/Shanghai')
+        GROUP BY 1, 2 ORDER BY 1, 2
+        """)
+    List<HistoryDay> history(@Param("workspaceId") long workspaceId,
+        @Param("petId") Long petId, @Param("deviceId") Long deviceId,
+        @Param("start") String start, @Param("end") String end);
+
     record Metric(String code, String label, String unit, String scope, boolean requiresPeriod) {}
     record Measurement(long id, Long deviceId, Long spaceId, String sourceKind,
                        String metricCode, BigDecimal value, Instant periodStartedAt,

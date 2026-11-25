@@ -43,7 +43,17 @@ flowchart LR
 | 自动化 | `GET/POST /workspaces/{w}/rules`，`POST /workspaces/{w}/rules/{r}/enabled`，`GET /workspaces/{w}/executions`，`GET /workspaces/{w}/alerts`，`POST /workspaces/{w}/alerts/{a}/resolve` |
 | AI 占位 | `POST /workspaces/{w}/ai/health-analysis/{p}`、`behavior-recognition/{p}`、`assistant`、`database-query`、`automation-decision`；始终返回 501 |
 
-### 示例：设备上报
+### 历史数据可视化
+
+宠物、设备列表下方提供历史面板，也可通过每行的“数据趋势”或“历史数据”跳转。支持近 7/30/90 天、自选日期（最多 366 天）、按天/周汇总、指标切换、折线、柱形、记录来源环形图及分页阶段表。
+
+`GET /api/workspaces/{w}/measurements/history?petId={p}&start=2026-11-01&end=2026-11-25`（设备使用 `deviceId`；二者须且只能指定一个）。需登录及空间读取权限。接口按上海日期在数据库聚合完整时段，不使用最近 200 条列表；每天每指标返回条数、均值、最小/最大值、总量和人工/设备条数。结束日期包含当天。宠物统计使用最新归属，设备统计包含尚未识别宠物的记录。
+
+体重等连续读数按阶段均值展示；活动分钟、进食克数、饮水毫升按阶段累计。周从周一开始，均值按原始记录条数加权，仅包含所选日期内的数据。无记录日期不补零。折线纵轴随数据缩放，柱形保留零基线。来源环形图仅比较同一指标的记录条数，不混合不同单位。
+
+前端计算测试：在 `frontend` 下运行 `node src/history.test.js`。
+
+### 示例：设备上报请求体
 
 ```json
 {

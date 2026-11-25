@@ -1,0 +1,5 @@
+Windows 本机运行的完整命令已整理到 docs/local-run-windows.md。
+启动：powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\start-local.ps1
+停止：powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\stop-local.ps1
+访问：http://127.0.0.1:5173/
+Git 历史已恢复，代码改动位于功能分支。数据库、缓存和日志仍保存在忽略的 .local 目录。

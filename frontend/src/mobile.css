@@ -1,4 +1,17 @@
 @media (max-width: 750px) {
+  .topbar {
+    height: auto;
+    min-height: 70px;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  .topbar-actions {
+    flex-wrap: wrap;
+    max-width: 100%;
+    gap: 6px;
+  }
   .logo > span:last-child,
   .workspace-pill,
   .nav-caption,

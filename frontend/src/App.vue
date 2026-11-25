@@ -2,6 +2,8 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { api, errorMessage, refreshCsrf } from "./api";
+import HistoryPanel from "./components/HistoryPanel.vue";
+const historyPanel = ref(null);
 
 const identity = ref(null);
 const workspaceId = ref(null);
@@ -777,7 +779,9 @@ onMounted(async () => {
                   <small>档案编号 #{{ pet.id }}</small>
                 </div>
                 <div class="pet-actions">
-                  <el-button text @click="showHealth(pet)">健康记录</el-button
+                  <el-button text @click="historyPanel?.select(pet.id)"
+                    >数据趋势</el-button
+                  ><el-button text @click="showHealth(pet)">健康记录</el-button
                   ><el-button
                     v-if="pet.status !== 'RETIRED'"
                     text
@@ -839,6 +843,8 @@ onMounted(async () => {
                 ></el-table-column
               ><el-table-column label="操作" min-width="240"
                 ><template #default="{ row }"
+                  ><el-button link @click="historyPanel?.select(row.id)"
+                    >历史数据</el-button
                   ><el-button link @click="showBindings(row)">绑定</el-button
                   ><el-button link @click="openDeviceEdit(row)">编辑</el-button
                   ><el-button
@@ -1073,40 +1079,15 @@ onMounted(async () => {
             </div>
           </div></template
         >
-        <section
-          v-if="page === 'pets' && selectedPet && petReport"
-          class="panel report-panel"
-          style="margin-top: 24px"
-        >
-          <div class="panel-head">
-            <div>
-              <p class="eyebrow">HEALTH SUMMARY · SQL REPORT</p>
-              <h2>{{ selectedPet.name }} 的健康统计</h2>
-            </div>
-            <el-button text @click="selectedPet = null">收起</el-button>
-          </div>
-          <p>
-            最近体重：<strong>{{
-              petReport.latestWeight?.weightKg ?? "暂无数据"
-            }}</strong>
-            <span v-if="petReport.latestWeight"
-              >kg · {{ localDate(petReport.latestWeight.measuredAt) }}</span
-            >
-          </p>
-          <el-table
-            v-if="petReport.dailyTotals?.length"
-            :data="petReport.dailyTotals"
-            size="small"
-            ><el-table-column prop="localDay" label="日期" /><el-table-column
-              prop="activityMinutes"
-              label="活动（分钟）" /><el-table-column
-              prop="foodIntakeG"
-              label="进食（g）" /><el-table-column
-              prop="waterIntakeMl"
-              label="饮水（ml）"
-          /></el-table>
-          <el-empty v-else description="近 30 天暂无活动、进食或饮水记录" />
-        </section>
+        <HistoryPanel
+          v-if="page === 'pets' || page === 'devices'"
+          :key="page"
+          ref="historyPanel"
+          :workspace-id="workspaceId"
+          :kind="page === 'pets' ? 'pet' : 'device'"
+          :entities="page === 'pets' ? data.pets : data.devices"
+          :metrics="data.metrics"
+        />
       </main>
     </div>
   </div>

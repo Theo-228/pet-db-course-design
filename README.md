@@ -24,6 +24,8 @@
 
 ## 本地启动
 
+Windows 本机的详细环境、首次配置、后台启动/停止、重新构建、测试与日志命令见 [Windows 本机运行指南](docs/local-run-windows.md)。已完成首次配置时，可在项目根目录执行 `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\start-local.ps1`；脚本内的工具路径需与本机环境一致。
+
 需要 JDK 21、PostgreSQL 17、Node.js 24（或符合 Vite 7 要求的版本）和 npm。初次运行先创建一个**空数据库**及可使用 `btree_gist` 扩展的账号；Flyway 会自动建表，不要先手动执行迁移文件。
 
 PowerShell 示例（替换连接信息）：

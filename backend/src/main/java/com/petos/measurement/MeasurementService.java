@@ -32,6 +32,20 @@ public class MeasurementService {
 
     public List<MeasurementMapper.Metric> metrics() { return mapper.metrics(); }
 
+    public List<MeasurementMapper.HistoryDay> history(AppPrincipal user, long workspaceId,
+            Long petId, Long deviceId, java.time.LocalDate start, java.time.LocalDate end) {
+        access.read(user, workspaceId);
+        if ((petId == null) == (deviceId == null) || start.isAfter(end)
+                || java.time.temporal.ChronoUnit.DAYS.between(start, end) > 365) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "请选择一只宠物或一台设备，日期范围不超过 366 天");
+        }
+        if (petId != null && pets.find(workspaceId, petId) == null
+                || deviceId != null && devices.find(workspaceId, deviceId) == null) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "宠物或设备不存在");
+        }
+        return mapper.history(workspaceId, petId, deviceId, start.toString(), end.toString());
+    }
+
     public List<MeasurementMapper.Measurement> list(AppPrincipal user, long workspaceId,
                                                      Long petId, Long deviceId) {
         access.read(user, workspaceId);

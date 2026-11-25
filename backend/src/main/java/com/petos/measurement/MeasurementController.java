@@ -35,6 +35,15 @@ public class MeasurementController {
     @GetMapping("/metrics")
     public List<MeasurementMapper.Metric> metrics() { return service.metrics(); }
 
+    @GetMapping("/workspaces/{workspaceId}/measurements/history")
+    public List<MeasurementMapper.HistoryDay> history(@AuthenticationPrincipal AppPrincipal user,
+        @PathVariable long workspaceId, @RequestParam(required = false) Long petId,
+        @RequestParam(required = false) Long deviceId,
+        @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate start,
+        @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate end) {
+        return service.history(user, workspaceId, petId, deviceId, start, end);
+    }
+
     @GetMapping("/workspaces/{workspaceId}/measurements")
     public List<MeasurementMapper.Measurement> list(@AuthenticationPrincipal AppPrincipal user,
         @PathVariable long workspaceId, @RequestParam(required = false) Long petId,
